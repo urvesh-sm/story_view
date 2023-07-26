@@ -180,32 +180,60 @@ class StoryImageState extends State<StoryImage> {
   }
 
   Widget getContentView() {
-    switch (widget.imageLoader.state) {
-      case LoadState.success:
-        return RawImage(
-          image: this.currentFrame,
-          fit: widget.fit,
-        );
-      case LoadState.failure:
-        return Center(
-            child: Text(
-          "Image failed to load.",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ));
-      default:
-        return Center(
-          child: Container(
-            width: 70,
-            height: 70,
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              strokeWidth: 3,
-            ),
-          ),
-        );
-    }
+    // switch (widget.imageLoader.state) {
+    //   case LoadState.success:
+    //     return RawImage(
+    //       image: this.currentFrame,
+    //       fit: widget.fit,
+    //     );
+    //   case LoadState.failure:
+    //     return Center(
+    //         child: Text(
+    //       "Image failed to load.",
+    //       style: TextStyle(
+    //         color: Colors.black,
+    //       ),
+    //     ),);
+    //   default:
+    //     return Center(
+    //       child: Container(
+    //         width: 70,
+    //         height: 70,
+    //         child: CircularProgressIndicator(
+    //           valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+    //           strokeWidth: 3,
+    //         ),
+    //       ),
+    //     );
+    // }
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 500),
+      child: widget.imageLoader.state == LoadState.success
+          ? RawImage(
+              image: this.currentFrame,
+              fit: widget.fit,
+            )
+          : widget.imageLoader.state == LoadState.failure
+              ? Center(
+                  child: Text(
+                    "Image failed to load.",
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),
+                  ),
+                )
+              : Center(
+                  child: Container(
+                    width: 70,
+                    height: 70,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                      strokeWidth: 3,
+                    ),
+                  ),
+                ),
+    );
   }
 
   @override
