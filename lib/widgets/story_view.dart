@@ -278,7 +278,8 @@ class StoryItem {
     return StoryItem(
         Container(
           key: key,
-          color: Colors.black,
+          margin: const EdgeInsets.all(20),
+          color: Colors.transparent,
           child: Stack(
             children: <Widget>[
               Center(
@@ -827,11 +828,11 @@ class StoryProgressIndicator extends StatelessWidget {
         this.indicatorHeight,
       ),
       foregroundPainter: IndicatorOval(
-        this.indicatorForegroundColor?? Colors.white.withOpacity(0.8),
+        this.indicatorForegroundColor ?? Colors.white.withOpacity(0.8),
         this.value,
       ),
       painter: IndicatorOval(
-        this.indicatorColor?? Colors.white.withOpacity(0.4),
+        this.indicatorColor ?? Colors.white.withOpacity(0.4),
         1.0,
       ),
     );

@@ -213,6 +213,7 @@ class StoryImageState extends State<StoryImage> {
     return Container(
       width: double.infinity,
       height: double.infinity,
+      margin: const EdgeInsets.all(20),
       child: getContentView(),
     );
   }
