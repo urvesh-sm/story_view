@@ -114,18 +114,24 @@ class StoryItem {
     bool shown = false,
     Map<String, dynamic>? requestHeaders,
     Duration? duration,
+    Color? backgroundColor,
+    EdgeInsetsGeometry? padding,
   }) {
     return StoryItem(
       Container(
         key: key,
-        color: Colors.transparent,
+        color: backgroundColor ?? Colors.transparent,
+        padding: padding,
         child: Stack(
           children: <Widget>[
-            StoryImage.url(
-              url,
-              controller: controller,
-              fit: imageFit,
-              requestHeaders: requestHeaders,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: StoryImage.url(
+                url,
+                controller: controller,
+                fit: imageFit,
+                requestHeaders: requestHeaders,
+              ),
             ),
             SafeArea(
               child: Align(
@@ -411,6 +417,9 @@ class StoryView extends StatefulWidget {
   // Indicator Foreground Color
   final Color? indicatorForegroundColor;
 
+  final double? headerContainerHeight;
+  final Widget? headerContainer;
+
   StoryView({
     required this.storyItems,
     required this.controller,
@@ -422,6 +431,8 @@ class StoryView extends StatefulWidget {
     this.onVerticalSwipeComplete,
     this.indicatorColor,
     this.indicatorForegroundColor,
+    this.headerContainer,
+    this.headerContainerHeight,
   });
 
   @override
@@ -636,21 +647,25 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                 bottom: widget.inline ? false : true,
                 // we use SafeArea here for notched and bezeles phones
                 child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: PageBar(
-                    widget.storyItems
-                        .map((it) => PageData(it!.duration, it.shown))
-                        .toList(),
-                    this._currentAnimation,
-                    key: UniqueKey(),
-                    indicatorHeight: widget.inline
-                        ? IndicatorHeight.small
-                        : IndicatorHeight.large,
-                    indicatorColor: widget.indicatorColor,
-                    indicatorForegroundColor: widget.indicatorForegroundColor,
+                  padding:
+                      EdgeInsets.only(top: widget.headerContainerHeight ?? 0),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
+                    child: PageBar(
+                      widget.storyItems
+                          .map((it) => PageData(it!.duration, it.shown))
+                          .toList(),
+                      this._currentAnimation,
+                      key: UniqueKey(),
+                      indicatorHeight: widget.inline
+                          ? IndicatorHeight.small
+                          : IndicatorHeight.large,
+                      indicatorColor: widget.indicatorColor,
+                      indicatorForegroundColor: widget.indicatorForegroundColor,
+                    ),
                   ),
                 ),
               ),
@@ -718,6 +733,19 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                 }),
                 width: 70),
           ),
+          if (widget.headerContainer != null) ...[
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                child: SizedBox(
+                  height: widget.headerContainerHeight,
+                  child: widget.headerContainer,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
