@@ -178,6 +178,7 @@ class StoryItem {
     Map<String, dynamic>? requestHeaders,
     bool shown = false,
     bool roundedTop = true,
+    Color? backgroundColor,
     bool roundedBottom = false,
     Duration? duration,
   }) {
@@ -185,16 +186,19 @@ class StoryItem {
       ClipRRect(
         key: key,
         child: Container(
-          color: Colors.grey[100],
+          color: backgroundColor ?? Colors.transparent,
           child: Container(
-            color: Colors.black,
+            color: backgroundColor ?? Colors.transparent,
             child: Stack(
               children: <Widget>[
-                StoryImage.url(
-                  url,
-                  controller: controller,
-                  fit: imageFit,
-                  requestHeaders: requestHeaders,
+                Padding(
+                  padding: const EdgeInsets.only(top: 30),
+                  child: StoryImage.url(
+                    url,
+                    controller: controller,
+                    fit: imageFit,
+                    requestHeaders: requestHeaders,
+                  ),
                 ),
                 Container(
                   margin: EdgeInsets.only(bottom: 16),
