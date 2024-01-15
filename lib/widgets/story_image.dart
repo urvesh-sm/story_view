@@ -73,11 +73,14 @@ class StoryImage extends StatefulWidget {
 
   final StoryController? controller;
 
+  final EdgeInsets? margin;
+
   StoryImage(
     this.imageLoader, {
     Key? key,
     this.controller,
     this.fit,
+    this.margin,
   }) : super(key: key ?? UniqueKey());
 
   /// Use this shorthand to fetch images/gifs from the provided [url]
@@ -87,6 +90,7 @@ class StoryImage extends StatefulWidget {
     Map<String, dynamic>? requestHeaders,
     BoxFit fit = BoxFit.fitWidth,
     Key? key,
+    EdgeInsets? margin,
   }) {
     return StoryImage(
         ImageLoader(
@@ -95,7 +99,7 @@ class StoryImage extends StatefulWidget {
         ),
         controller: controller,
         fit: fit,
-        key: key);
+        key: key,margin: margin,);
   }
 
   @override
@@ -210,9 +214,13 @@ class StoryImageState extends State<StoryImage> {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),
       child: widget.imageLoader.state == LoadState.success
-          ? RawImage(
-              image: this.currentFrame,
-              fit: widget.fit,
+          ? Container(
+              width: double.infinity,
+              height: double.infinity,
+              child: RawImage(
+                image: this.currentFrame,
+                fit: widget.fit,
+              ),
             )
           : widget.imageLoader.state == LoadState.failure
               ? Center(
@@ -241,7 +249,7 @@ class StoryImageState extends State<StoryImage> {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      margin: const EdgeInsets.all(20),
+      margin: widget.margin ?? const EdgeInsets.all(20),
       child: getContentView(),
     );
   }
