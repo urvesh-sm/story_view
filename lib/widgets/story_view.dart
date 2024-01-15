@@ -181,6 +181,7 @@ class StoryItem {
     Color? backgroundColor,
     bool roundedBottom = false,
     Duration? duration,
+    EdgeInsets? margin,
   }) {
     return StoryItem(
       ClipRRect(
@@ -191,14 +192,12 @@ class StoryItem {
             color: backgroundColor ?? Colors.transparent,
             child: Stack(
               children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(top: 30),
-                  child: StoryImage.url(
-                    url,
-                    controller: controller,
-                    fit: imageFit,
-                    requestHeaders: requestHeaders,
-                  ),
+                StoryImage.url(
+                  url,
+                  controller: controller,
+                  fit: imageFit,
+                  requestHeaders: requestHeaders,
+                  margin: margin,
                 ),
                 Container(
                   margin: EdgeInsets.only(bottom: 16),
@@ -793,11 +792,11 @@ class PageBarState extends State<PageBar> {
   double spacing = 4;
 
   @override
-  void initState() {
+  void initState() { 
     super.initState();
 
     int count = widget.pages.length;
-    spacing = (count > 15) ? 1 : ((count > 10) ? 2 : 4);
+    spacing = (count > 15) ? 1 : ((count > 10) ? 4 : 4);
 
     widget.animation!.addListener(() {
       setState(() {});
@@ -826,7 +825,7 @@ class PageBarState extends State<PageBar> {
             child: StoryProgressIndicator(
               isPlaying(it) ? widget.animation!.value : (it.shown ? 1 : 0),
               indicatorHeight:
-                  widget.indicatorHeight == IndicatorHeight.large ? 5 : 3,
+                  widget.indicatorHeight == IndicatorHeight.large ? 5 : 4,
               indicatorColor: widget.indicatorColor,
               indicatorForegroundColor: widget.indicatorForegroundColor,
             ),
