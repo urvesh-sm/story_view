@@ -182,6 +182,11 @@ class StoryItem {
     bool roundedBottom = false,
     Duration? duration,
     EdgeInsets? margin,
+    Widget? floatingButtonWidget, 
+    double? floatingButtonBottomGap,
+    double? floatingButtonLeftGap,
+    double? floatingButtonRightGap,
+    double? floatingButtonTopGap,
   }) {
     return StoryItem(
       ClipRRect(
@@ -210,6 +215,14 @@ class StoryItem {
                     ),
                   ),
                 ),
+                if (floatingButtonWidget != null) ...[
+                  Positioned(
+                      top: floatingButtonTopGap,
+                      right: floatingButtonRightGap,
+                      bottom: floatingButtonBottomGap, 
+                      left: floatingButtonLeftGap,
+                      child: floatingButtonWidget),
+                ],
               ],
             ),
           ),
@@ -676,7 +689,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
           ),
           Align(
               alignment: Alignment.centerRight,
-              heightFactor: 1,
+              heightFactor: 0.65,
               child: GestureDetector(
                 onTapDown: (details) {
                   widget.controller.pause();
@@ -708,9 +721,9 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                         if (verticalDragInfo == null) {
                           verticalDragInfo = VerticalDragInfo();
                         }
-
+              
                         verticalDragInfo!.update(details.primaryDelta!);
-
+              
                         // TODO: provide callback interface for animation purposes
                       },
                 onVerticalDragEnd: widget.onVerticalSwipeComplete == null
@@ -723,7 +736,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                           widget.onVerticalSwipeComplete!(
                               verticalDragInfo!.direction);
                         }
-
+              
                         verticalDragInfo = null;
                       },
               )),
@@ -749,6 +762,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
               ),
             ),
           ],
+          
         ],
       ),
     );
@@ -792,7 +806,7 @@ class PageBarState extends State<PageBar> {
   double spacing = 4;
 
   @override
-  void initState() { 
+  void initState() {
     super.initState();
 
     int count = widget.pages.length;
