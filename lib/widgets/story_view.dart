@@ -182,7 +182,7 @@ class StoryItem {
     bool roundedBottom = false,
     Duration? duration,
     EdgeInsets? margin,
-    Widget? floatingButtonWidget, 
+    Widget? floatingButtonWidget,
     double? floatingButtonBottomGap,
     double? floatingButtonLeftGap,
     double? floatingButtonRightGap,
@@ -219,7 +219,7 @@ class StoryItem {
                   Positioned(
                       top: floatingButtonTopGap,
                       right: floatingButtonRightGap,
-                      bottom: floatingButtonBottomGap, 
+                      bottom: floatingButtonBottomGap,
                       left: floatingButtonLeftGap,
                       child: floatingButtonWidget),
                 ],
@@ -659,29 +659,25 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
               alignment: widget.progressPosition == ProgressPosition.top
                   ? Alignment.topCenter
                   : Alignment.bottomCenter,
-              child: SafeArea(
-                bottom: widget.inline ? false : true,
-                // we use SafeArea here for notched and bezeles phones
+              child: Container(
+                padding:
+                    EdgeInsets.only(top: widget.headerContainerHeight ?? 0),
                 child: Container(
-                  padding:
-                      EdgeInsets.only(top: widget.headerContainerHeight ?? 0),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 8,
-                    ),
-                    child: PageBar(
-                      widget.storyItems
-                          .map((it) => PageData(it!.duration, it.shown))
-                          .toList(),
-                      this._currentAnimation,
-                      key: UniqueKey(),
-                      indicatorHeight: widget.inline
-                          ? IndicatorHeight.small
-                          : IndicatorHeight.large,
-                      indicatorColor: widget.indicatorColor,
-                      indicatorForegroundColor: widget.indicatorForegroundColor,
-                    ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
+                  child: PageBar(
+                    widget.storyItems
+                        .map((it) => PageData(it!.duration, it.shown))
+                        .toList(),
+                    this._currentAnimation,
+                    key: UniqueKey(),
+                    indicatorHeight: widget.inline
+                        ? IndicatorHeight.small
+                        : IndicatorHeight.large,
+                    indicatorColor: widget.indicatorColor,
+                    indicatorForegroundColor: widget.indicatorForegroundColor,
                   ),
                 ),
               ),
@@ -721,9 +717,9 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                         if (verticalDragInfo == null) {
                           verticalDragInfo = VerticalDragInfo();
                         }
-              
+
                         verticalDragInfo!.update(details.primaryDelta!);
-              
+
                         // TODO: provide callback interface for animation purposes
                       },
                 onVerticalDragEnd: widget.onVerticalSwipeComplete == null
@@ -736,7 +732,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                           widget.onVerticalSwipeComplete!(
                               verticalDragInfo!.direction);
                         }
-              
+
                         verticalDragInfo = null;
                       },
               )),
@@ -762,7 +758,6 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
               ),
             ),
           ],
-          
         ],
       ),
     );
