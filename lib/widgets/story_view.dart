@@ -659,28 +659,56 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
               alignment: widget.progressPosition == ProgressPosition.top
                   ? Alignment.topCenter
                   : Alignment.bottomCenter,
-              child: Container(
-                padding:
-                    EdgeInsets.only(top: widget.headerContainerHeight ?? 0),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 8,
-                  ),
-                  child: PageBar(
-                    widget.storyItems
-                        .map((it) => PageData(it!.duration, it.shown))
-                        .toList(),
-                    this._currentAnimation,
-                    key: UniqueKey(),
-                    indicatorHeight: widget.inline
-                        ? IndicatorHeight.small
-                        : IndicatorHeight.large,
-                    indicatorColor: widget.indicatorColor,
-                    indicatorForegroundColor: widget.indicatorForegroundColor,
-                  ),
-                ),
-              ),
+              child: widget.inline
+                  ? Container(
+                      padding: EdgeInsets.only(
+                          top: widget.headerContainerHeight ?? 0),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 8,
+                        ),
+                        child: PageBar(
+                          widget.storyItems
+                              .map((it) => PageData(it!.duration, it.shown))
+                              .toList(),
+                          this._currentAnimation,
+                          key: UniqueKey(),
+                          indicatorHeight: widget.inline
+                              ? IndicatorHeight.small
+                              : IndicatorHeight.large,
+                          indicatorColor: widget.indicatorColor,
+                          indicatorForegroundColor:
+                              widget.indicatorForegroundColor,
+                        ),
+                      ),
+                    )
+                  : SafeArea(
+                      bottom: true,
+                      child: Container(
+                        padding: EdgeInsets.only(
+                            top: widget.headerContainerHeight ?? 0),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 8,
+                          ),
+                          child: PageBar(
+                            widget.storyItems
+                                .map((it) => PageData(it!.duration, it.shown))
+                                .toList(),
+                            this._currentAnimation,
+                            key: UniqueKey(),
+                            indicatorHeight: widget.inline
+                                ? IndicatorHeight.small
+                                : IndicatorHeight.large,
+                            indicatorColor: widget.indicatorColor,
+                            indicatorForegroundColor:
+                                widget.indicatorForegroundColor,
+                          ),
+                        ),
+                      ),
+                    ),
             ),
           ),
           Align(
