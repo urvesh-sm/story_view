@@ -649,7 +649,6 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
       child: Stack(
         children: <Widget>[
           _currentView,
