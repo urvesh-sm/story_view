@@ -75,12 +75,15 @@ class StoryImage extends StatefulWidget {
 
   final EdgeInsets? margin;
 
+  final Color? progressColor;
+
   StoryImage(
     this.imageLoader, {
     Key? key,
     this.controller,
     this.fit,
     this.margin,
+    this.progressColor,
   }) : super(key: key ?? UniqueKey());
 
   /// Use this shorthand to fetch images/gifs from the provided [url]
@@ -91,6 +94,7 @@ class StoryImage extends StatefulWidget {
     BoxFit fit = BoxFit.fitWidth,
     Key? key,
     EdgeInsets? margin,
+    Color? progressColor,
   }) {
     return StoryImage(
         ImageLoader(
@@ -99,7 +103,10 @@ class StoryImage extends StatefulWidget {
         ),
         controller: controller,
         fit: fit,
-        key: key,margin: margin,);
+        progressColor: progressColor,
+        key: key,
+      margin: margin,
+    );
   }
 
   @override
@@ -236,7 +243,7 @@ class StoryImageState extends State<StoryImage> {
                     width: 70,
                     height: 70,
                     child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                      valueColor: AlwaysStoppedAnimation<Color>(widget.progressColor ?? Colors.black),
                       strokeWidth: 3,
                     ),
                   ),
