@@ -115,6 +115,7 @@ class StoryItem {
     Map<String, dynamic>? requestHeaders,
     Duration? duration,
     Color? backgroundColor,
+    Color? progressColor,
     EdgeInsetsGeometry? padding,
   }) {
     return StoryItem(
@@ -131,6 +132,7 @@ class StoryItem {
                 controller: controller,
                 fit: imageFit,
                 requestHeaders: requestHeaders,
+                progressColor: progressColor,
               ),
             ),
             SafeArea(
