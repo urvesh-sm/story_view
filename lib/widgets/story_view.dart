@@ -189,6 +189,7 @@ class StoryItem {
     double? floatingButtonLeftGap,
     double? floatingButtonRightGap,
     double? floatingButtonTopGap,
+    Color? progressColor,
   }) {
     return StoryItem(
       ClipRRect(
@@ -205,6 +206,7 @@ class StoryItem {
                   fit: imageFit,
                   requestHeaders: requestHeaders,
                   margin: margin,
+                  progressColor: progressColor,
                 ),
                 Container(
                   margin: EdgeInsets.only(bottom: 16),
