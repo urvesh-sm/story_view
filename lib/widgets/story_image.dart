@@ -46,8 +46,7 @@ class ImageLoader {
 
         this.state = LoadState.success;
 
-        PaintingBinding.instance!.instantiateImageCodec(imageBytes).then(
-            (codec) {
+        ui.instantiateImageCodec(imageBytes).then((codec) {
           this.frames = codec;
           onComplete();
         }, onError: (error) {
@@ -97,14 +96,14 @@ class StoryImage extends StatefulWidget {
     Color? progressColor,
   }) {
     return StoryImage(
-        ImageLoader(
-          url,
-          requestHeaders: requestHeaders,
-        ),
-        controller: controller,
-        fit: fit,
-        progressColor: progressColor,
-        key: key,
+      ImageLoader(
+        url,
+        requestHeaders: requestHeaders,
+      ),
+      controller: controller,
+      fit: fit,
+      progressColor: progressColor,
+      key: key,
       margin: margin,
     );
   }
@@ -243,7 +242,8 @@ class StoryImageState extends State<StoryImage> {
                     width: 70,
                     height: 70,
                     child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(widget.progressColor ?? Colors.black),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          widget.progressColor ?? Colors.black),
                       strokeWidth: 3,
                     ),
                   ),
