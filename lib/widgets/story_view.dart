@@ -252,6 +252,7 @@ class StoryItem {
     String? caption,
     bool shown = false,
     Map<String, dynamic>? requestHeaders,
+    Color? backgroundColor,
   }) {
     return StoryItem(
         Container(
@@ -716,65 +717,69 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
           ),
           Align(
               alignment: Alignment.centerRight,
-              heightFactor: 0.65,
-              child: GestureDetector(
-                onTapDown: (details) {
-                  widget.controller.pause();
-                },
-                onTapCancel: () {
-                  widget.controller.play();
-                },
-                onTapUp: (details) {
-                  // if debounce timed out (not active) then continue anim
-                  if (_nextDebouncer?.isActive == false) {
+              heightFactor: 1,
+              child: Container(
+                width: MediaQuery.of(context).size.width / 2,
+                child: GestureDetector(
+                  onTapDown: (details) {
+                    widget.controller.pause();
+                  },
+                  onTapCancel: () {
                     widget.controller.play();
-                  } else {
-                    widget.controller.next();
-                  }
-                },
-                onVerticalDragStart: widget.onVerticalSwipeComplete == null
-                    ? null
-                    : (details) {
-                        widget.controller.pause();
-                      },
-                onVerticalDragCancel: widget.onVerticalSwipeComplete == null
-                    ? null
-                    : () {
-                        widget.controller.play();
-                      },
-                onVerticalDragUpdate: widget.onVerticalSwipeComplete == null
-                    ? null
-                    : (details) {
-                        if (verticalDragInfo == null) {
-                          verticalDragInfo = VerticalDragInfo();
-                        }
+                  },
+                  onTapUp: (details) {
+                    // if debounce timed out (not active) then continue anim
 
-                        verticalDragInfo!.update(details.primaryDelta!);
+                    if (_nextDebouncer?.isActive == false) {
+                      widget.controller.play();
+                    } else {
+                      widget.controller.next();
+                    }
+                  },
+                  onVerticalDragStart: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : (details) {
+                          widget.controller.pause();
+                        },
+                  onVerticalDragCancel: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : () {
+                          widget.controller.play();
+                        },
+                  onVerticalDragUpdate: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : (details) {
+                          if (verticalDragInfo == null) {
+                            verticalDragInfo = VerticalDragInfo();
+                          }
 
-                        // TODO: provide callback interface for animation purposes
-                      },
-                onVerticalDragEnd: widget.onVerticalSwipeComplete == null
-                    ? null
-                    : (details) {
-                        widget.controller.play();
-                        // finish up drag cycle
-                        if (!verticalDragInfo!.cancel &&
-                            widget.onVerticalSwipeComplete != null) {
-                          widget.onVerticalSwipeComplete!(
-                              verticalDragInfo!.direction);
-                        }
+                          verticalDragInfo!.update(details.primaryDelta!);
 
-                        verticalDragInfo = null;
-                      },
+                          // TODO: provide callback interface for animation purposes
+                        },
+                  onVerticalDragEnd: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : (details) {
+                          widget.controller.play();
+                          // finish up drag cycle
+                          if (!verticalDragInfo!.cancel &&
+                              widget.onVerticalSwipeComplete != null) {
+                            widget.onVerticalSwipeComplete!(
+                                verticalDragInfo!.direction);
+                          }
+
+                          verticalDragInfo = null;
+                        },
+                ),
               )),
           Align(
             alignment: Alignment.centerLeft,
             heightFactor: 1,
-            child: SizedBox(
+            child: Container(
                 child: GestureDetector(onTap: () {
                   widget.controller.previous();
                 }),
-                width: 70),
+                width: MediaQuery.of(context).size.width / 2),
           ),
           if (widget.headerContainer != null) ...[
             Positioned(
