@@ -257,7 +257,7 @@ class StoryItem {
     return StoryItem(
         Container(
           key: key,
-          color: Colors.black,
+          color: backgroundColor?? Colors.black,
           child: Stack(
             children: <Widget>[
               StoryVideo.url(
