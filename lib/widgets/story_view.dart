@@ -4,7 +4,6 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/material.dart';
-
 import '../controller/story_controller.dart';
 import '../utils.dart';
 import 'story_image.dart';
@@ -193,7 +192,7 @@ class StoryItem {
   }) {
     return StoryItem(
       ClipRRect(
-        key: key,
+        key: const ValueKey('image'),
         child: Container(
           color: backgroundColor ?? Colors.transparent,
           child: Container(
@@ -256,15 +255,15 @@ class StoryItem {
   }) {
     return StoryItem(
         Container(
-          key: key,
-          color: backgroundColor?? Colors.black,
+          key: const ValueKey(
+              'video'), // This key is used to check if the current widget is video/image while showing mute/unmute button
+          color: backgroundColor ?? Colors.black,
           child: Stack(
             children: <Widget>[
-              StoryVideo.url(
-                url,
-                controller: controller,
-                requestHeaders: requestHeaders,
-              ),
+              StoryVideo.url(url,
+                  controller: controller,
+                  requestHeaders: requestHeaders,
+                  backgroundColor: backgroundColor),
               SafeArea(
                 child: Align(
                   alignment: Alignment.bottomCenter,
@@ -440,21 +439,24 @@ class StoryView extends StatefulWidget {
 
   final double? headerContainerHeight;
   final Widget? headerContainer;
+  final Widget? muteWidget;
+  final Widget? unMuteWidget;
 
-  StoryView({
-    required this.storyItems,
-    required this.controller,
-    this.onComplete,
-    this.onStoryShow,
-    this.progressPosition = ProgressPosition.top,
-    this.repeat = false,
-    this.inline = false,
-    this.onVerticalSwipeComplete,
-    this.indicatorColor,
-    this.indicatorForegroundColor,
-    this.headerContainer,
-    this.headerContainerHeight,
-  });
+  StoryView(
+      {required this.storyItems,
+      required this.controller,
+      this.onComplete,
+      this.onStoryShow,
+      this.progressPosition = ProgressPosition.top,
+      this.repeat = false,
+      this.inline = false,
+      this.onVerticalSwipeComplete,
+      this.indicatorColor,
+      this.indicatorForegroundColor,
+      this.headerContainer,
+      this.headerContainerHeight,
+      this.muteWidget,
+      this.unMuteWidget});
 
   @override
   State<StatefulWidget> createState() {
@@ -781,6 +783,12 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                 }),
                 width: MediaQuery.of(context).size.width / 2),
           ),
+          if (_currentView.key == ValueKey('video'))
+            MuteUnMuteButton(
+              controller: widget.controller,
+              muteWidget: widget.muteWidget,
+              unMuteWidget: widget.unMuteWidget,
+            ),
           if (widget.headerContainer != null) ...[
             Positioned(
               top: 0,
@@ -797,6 +805,53 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
         ],
       ),
     );
+  }
+}
+
+class MuteUnMuteButton extends StatefulWidget {
+  const MuteUnMuteButton({
+    Key? key,
+    required this.controller,
+    required this.muteWidget,
+    required this.unMuteWidget,
+  }) : super(key: key);
+
+  final StoryController controller;
+  final Widget? muteWidget;
+  final Widget? unMuteWidget;
+
+  @override
+  State<MuteUnMuteButton> createState() => _MuteUnMuteButtonState();
+}
+
+class _MuteUnMuteButtonState extends State<MuteUnMuteButton> {
+  StreamSubscription? _muteSubscription;
+  MuteState _isMuted = MuteState.unmuted;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setState(() {
+      _isMuted = widget.controller.muteNotifier.value;
+    });
+    _muteSubscription = widget.controller.muteNotifier.listen((muteState) {
+      setState(() {
+        _isMuted = muteState;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+        top: 10,
+        right: 50,
+        child: GestureDetector(
+            onTap: () => widget.controller.toggleMute(),
+            child: (_isMuted == MuteState.unmuted)
+                ? widget.unMuteWidget
+                : widget.muteWidget));
   }
 }
 

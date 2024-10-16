@@ -25,8 +25,8 @@ class VideoLoader {
       onComplete();
     }
 
-    final fileStream = DefaultCacheManager()
-        .getFileStream(this.url, headers: this.requestHeaders as Map<String, String>?);
+    final fileStream = DefaultCacheManager().getFileStream(this.url,headers: this.requestHeaders as Map<String, String>?);
+
 
     fileStream.listen((fileResponse) {
       if (fileResponse is FileInfo) {
@@ -43,19 +43,20 @@ class VideoLoader {
 class StoryVideo extends StatefulWidget {
   final StoryController? storyController;
   final VideoLoader videoLoader;
+  final Color? backgroundColor;
 
-  StoryVideo(this.videoLoader, {this.storyController, Key? key})
+  StoryVideo(this.videoLoader, {this.storyController, Key? key, this.backgroundColor})
       : super(key: key ?? UniqueKey());
 
   static StoryVideo url(String url,
       {StoryController? controller,
+      Color? backgroundColor,
       Map<String, dynamic>? requestHeaders,
       Key? key}) {
-    return StoryVideo(
-      VideoLoader(url, requestHeaders: requestHeaders),
-      storyController: controller,
-      key: key,
-    );
+    return StoryVideo(VideoLoader(url, requestHeaders: requestHeaders),
+        storyController: controller,
+        key: key,
+        backgroundColor: backgroundColor);
   }
 
   @override
@@ -66,6 +67,7 @@ class StoryVideo extends StatefulWidget {
 
 class StoryVideoState extends State<StoryVideo> {
   Future<void>? playerLoader;
+  bool _isMuted = false;
 
   StreamSubscription? _streamSubscription;
 
@@ -96,6 +98,12 @@ class StoryVideoState extends State<StoryVideo> {
               playerController!.play();
             }
           });
+              widget.storyController!.muteNotifier.listen((muteState) {
+            setState(() {
+              _isMuted = muteState == MuteState.muted;
+              playerController!.setVolume(_isMuted ? 0.0 : 1.0);
+            });
+          });
         }
       } else {
         setState(() {});
@@ -114,7 +122,8 @@ class StoryVideoState extends State<StoryVideo> {
       );
     }
 
-    return widget.videoLoader.state == LoadState.loading
+    return widget.videoLoader.state == LoadState.loading ||
+            widget.videoLoader.state == LoadState.success
         ? Center(
             child: Container(
               width: 70,
@@ -137,7 +146,7 @@ class StoryVideoState extends State<StoryVideo> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black,
+      color: widget.backgroundColor ?? Colors.black,
       height: double.infinity,
       width: double.infinity,
       child: getContentView(),
