@@ -1,10 +1,7 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:ui';
-
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/material.dart';
-
 import '../controller/story_controller.dart';
 import '../utils.dart';
 import 'story_image.dart';
@@ -179,7 +176,7 @@ class StoryItem {
     BoxFit imageFit = BoxFit.cover,
     Map<String, dynamic>? requestHeaders,
     bool shown = false,
-    bool roundedTop = true,
+    bool roundedTop = false,
     Color? backgroundColor,
     bool roundedBottom = false,
     Duration? duration,
@@ -193,7 +190,7 @@ class StoryItem {
   }) {
     return StoryItem(
       ClipRRect(
-        key: key,
+        key: const ValueKey('image'),
         child: Container(
           color: backgroundColor ?? Colors.transparent,
           child: Container(
@@ -252,18 +249,19 @@ class StoryItem {
     String? caption,
     bool shown = false,
     Map<String, dynamic>? requestHeaders,
+    Color? backgroundColor,
   }) {
     return StoryItem(
         Container(
-          key: key,
-          color: Colors.black,
+          key: const ValueKey(
+              'video'), // This key is used to check if the current widget is video/image while showing mute/unmute button
+          color: backgroundColor ?? Colors.black,
           child: Stack(
             children: <Widget>[
-              StoryVideo.url(
-                url,
-                controller: controller,
-                requestHeaders: requestHeaders,
-              ),
+              StoryVideo.url(url,
+                  controller: controller,
+                  requestHeaders: requestHeaders,
+                  backgroundColor: backgroundColor),
               SafeArea(
                 child: Align(
                   alignment: Alignment.bottomCenter,
@@ -439,21 +437,24 @@ class StoryView extends StatefulWidget {
 
   final double? headerContainerHeight;
   final Widget? headerContainer;
+  final Widget? muteWidget;
+  final Widget? unMuteWidget;
 
-  StoryView({
-    required this.storyItems,
-    required this.controller,
-    this.onComplete,
-    this.onStoryShow,
-    this.progressPosition = ProgressPosition.top,
-    this.repeat = false,
-    this.inline = false,
-    this.onVerticalSwipeComplete,
-    this.indicatorColor,
-    this.indicatorForegroundColor,
-    this.headerContainer,
-    this.headerContainerHeight,
-  });
+  StoryView(
+      {required this.storyItems,
+      required this.controller,
+      this.onComplete,
+      this.onStoryShow,
+      this.progressPosition = ProgressPosition.top,
+      this.repeat = false,
+      this.inline = false,
+      this.onVerticalSwipeComplete,
+      this.indicatorColor,
+      this.indicatorForegroundColor,
+      this.headerContainer,
+      this.headerContainerHeight,
+      this.muteWidget,
+      this.unMuteWidget});
 
   @override
   State<StatefulWidget> createState() {
@@ -716,82 +717,183 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
           ),
           Align(
               alignment: Alignment.centerRight,
-              heightFactor: 0.65,
-              child: GestureDetector(
-                onTapDown: (details) {
-                  widget.controller.pause();
-                },
-                onTapCancel: () {
-                  widget.controller.play();
-                },
-                onTapUp: (details) {
-                  // if debounce timed out (not active) then continue anim
-                  if (_nextDebouncer?.isActive == false) {
+              heightFactor: 1,
+              child: Container(
+                width: MediaQuery.of(context).size.width / 2,
+                child: GestureDetector(
+                  onTapDown: (details) {
+                    widget.controller.pause();
+                  },
+                  onTapCancel: () {
                     widget.controller.play();
-                  } else {
-                    widget.controller.next();
-                  }
-                },
-                onVerticalDragStart: widget.onVerticalSwipeComplete == null
-                    ? null
-                    : (details) {
-                        widget.controller.pause();
-                      },
-                onVerticalDragCancel: widget.onVerticalSwipeComplete == null
-                    ? null
-                    : () {
-                        widget.controller.play();
-                      },
-                onVerticalDragUpdate: widget.onVerticalSwipeComplete == null
-                    ? null
-                    : (details) {
-                        if (verticalDragInfo == null) {
-                          verticalDragInfo = VerticalDragInfo();
-                        }
+                  },
+                  onTapUp: (details) {
+                    // if debounce timed out (not active) then continue anim
 
-                        verticalDragInfo!.update(details.primaryDelta!);
+                    if (_nextDebouncer?.isActive == false) {
+                      widget.controller.play();
+                    } else {
+                      widget.controller.next();
+                    }
+                  },
+                  onVerticalDragStart: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : (details) {
+                          widget.controller.pause();
+                        },
+                  onVerticalDragCancel: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : () {
+                          widget.controller.play();
+                        },
+                  onVerticalDragUpdate: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : (details) {
+                          if (verticalDragInfo == null) {
+                            verticalDragInfo = VerticalDragInfo();
+                          }
 
-                        // TODO: provide callback interface for animation purposes
-                      },
-                onVerticalDragEnd: widget.onVerticalSwipeComplete == null
-                    ? null
-                    : (details) {
-                        widget.controller.play();
-                        // finish up drag cycle
-                        if (!verticalDragInfo!.cancel &&
-                            widget.onVerticalSwipeComplete != null) {
-                          widget.onVerticalSwipeComplete!(
-                              verticalDragInfo!.direction);
-                        }
+                          verticalDragInfo!.update(details.primaryDelta!);
 
-                        verticalDragInfo = null;
-                      },
+                          // TODO: provide callback interface for animation purposes
+                        },
+                  onVerticalDragEnd: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : (details) {
+                          widget.controller.play();
+                          // finish up drag cycle
+                          if (!verticalDragInfo!.cancel &&
+                              widget.onVerticalSwipeComplete != null) {
+                            widget.onVerticalSwipeComplete!(
+                                verticalDragInfo!.direction);
+                          }
+
+                          verticalDragInfo = null;
+                        },
+                ),
               )),
           Align(
             alignment: Alignment.centerLeft,
             heightFactor: 1,
-            child: SizedBox(
-                child: GestureDetector(onTap: () {
-                  widget.controller.previous();
-                }),
-                width: 70),
+            child: Container(
+                child: GestureDetector(
+                  onTapUp: (details) {
+                    if (_nextDebouncer?.isActive == false) {
+                      widget.controller.play();
+                    } else {
+                      widget.controller.previous();
+                    }
+                  },
+                  onTapDown: (details) {
+                    widget.controller.pause();
+                  },
+                  onTapCancel: () {
+                    widget.controller.play();
+                  },
+                  onVerticalDragStart: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : (details) {
+                          widget.controller.pause();
+                        },
+                  onVerticalDragCancel: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : () {
+                          widget.controller.play();
+                        },
+                  onVerticalDragUpdate: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : (details) {
+                          if (verticalDragInfo == null) {
+                            verticalDragInfo = VerticalDragInfo();
+                          }
+
+                          verticalDragInfo!.update(details.primaryDelta!);
+
+               
+                        },
+                  onVerticalDragEnd: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : (details) {
+                          widget.controller.play();
+                          // finish up drag cycle
+                          if (!verticalDragInfo!.cancel &&
+                              widget.onVerticalSwipeComplete != null) {
+                            widget.onVerticalSwipeComplete!(
+                                verticalDragInfo!.direction);
+                          }
+
+                          verticalDragInfo = null;
+                        },
+                ),
+                width: MediaQuery.of(context).size.width / 2),
           ),
+          if (_currentView.key == ValueKey('video'))
+            Positioned(
+              top: 0,
+              right: 0,
+              child: MuteUnMuteButton(
+                controller: widget.controller,
+                muteWidget: widget.muteWidget,
+                unMuteWidget: widget.unMuteWidget,
+              ),
+            ),
           if (widget.headerContainer != null) ...[
             Positioned(
               top: 0,
               left: 0,
               right: 0,
-              child: SafeArea(
-                child: SizedBox(
-                  height: widget.headerContainerHeight,
-                  child: widget.headerContainer,
-                ),
+              child: SizedBox(
+                child: widget.headerContainer,
               ),
             ),
           ],
         ],
       ),
     );
+  }
+}
+
+class MuteUnMuteButton extends StatefulWidget {
+  const MuteUnMuteButton({
+    Key? key,
+    required this.controller,
+    required this.muteWidget,
+    required this.unMuteWidget,
+  }) : super(key: key);
+
+  final StoryController controller;
+  final Widget? muteWidget;
+  final Widget? unMuteWidget;
+
+  @override
+  State<MuteUnMuteButton> createState() => _MuteUnMuteButtonState();
+}
+
+class _MuteUnMuteButtonState extends State<MuteUnMuteButton> {
+  StreamSubscription? _muteSubscription;
+  MuteState _isMuted = MuteState.unmuted;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setState(() {
+      _isMuted = widget.controller.muteNotifier.value;
+    });
+    _muteSubscription = widget.controller.muteNotifier.listen((muteState) {
+      setState(() {
+        _isMuted = muteState;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+        onTap: () => widget.controller.toggleMute(),
+        child: (_isMuted == MuteState.unmuted)
+            ? widget.unMuteWidget
+            : widget.muteWidget);
   }
 }
 
