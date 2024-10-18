@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:ui';
-
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/material.dart';
 import '../controller/story_controller.dart';
@@ -178,7 +176,7 @@ class StoryItem {
     BoxFit imageFit = BoxFit.cover,
     Map<String, dynamic>? requestHeaders,
     bool shown = false,
-    bool roundedTop = true,
+    bool roundedTop = false,
     Color? backgroundColor,
     bool roundedBottom = false,
     Duration? duration,
@@ -778,27 +776,74 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
             alignment: Alignment.centerLeft,
             heightFactor: 1,
             child: Container(
-                child: GestureDetector(onTap: () {
-                  widget.controller.previous();
-                }),
+                child: GestureDetector(
+                  onTapUp: (details) {
+                    if (_nextDebouncer?.isActive == false) {
+                      widget.controller.play();
+                    } else {
+                      widget.controller.previous();
+                    }
+                  },
+                  onTapDown: (details) {
+                    widget.controller.pause();
+                  },
+                  onTapCancel: () {
+                    widget.controller.play();
+                  },
+                  onVerticalDragStart: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : (details) {
+                          widget.controller.pause();
+                        },
+                  onVerticalDragCancel: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : () {
+                          widget.controller.play();
+                        },
+                  onVerticalDragUpdate: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : (details) {
+                          if (verticalDragInfo == null) {
+                            verticalDragInfo = VerticalDragInfo();
+                          }
+
+                          verticalDragInfo!.update(details.primaryDelta!);
+
+               
+                        },
+                  onVerticalDragEnd: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : (details) {
+                          widget.controller.play();
+                          // finish up drag cycle
+                          if (!verticalDragInfo!.cancel &&
+                              widget.onVerticalSwipeComplete != null) {
+                            widget.onVerticalSwipeComplete!(
+                                verticalDragInfo!.direction);
+                          }
+
+                          verticalDragInfo = null;
+                        },
+                ),
                 width: MediaQuery.of(context).size.width / 2),
           ),
           if (_currentView.key == ValueKey('video'))
-            MuteUnMuteButton(
-              controller: widget.controller,
-              muteWidget: widget.muteWidget,
-              unMuteWidget: widget.unMuteWidget,
+            Positioned(
+              top: 0,
+              right: 0,
+              child: MuteUnMuteButton(
+                controller: widget.controller,
+                muteWidget: widget.muteWidget,
+                unMuteWidget: widget.unMuteWidget,
+              ),
             ),
           if (widget.headerContainer != null) ...[
             Positioned(
               top: 0,
               left: 0,
               right: 0,
-              child: SafeArea(
-                child: SizedBox(
-                  height: widget.headerContainerHeight,
-                  child: widget.headerContainer,
-                ),
+              child: SizedBox(
+                child: widget.headerContainer,
               ),
             ),
           ],
@@ -844,14 +889,11 @@ class _MuteUnMuteButtonState extends State<MuteUnMuteButton> {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-        top: 10,
-        right: 50,
-        child: GestureDetector(
-            onTap: () => widget.controller.toggleMute(),
-            child: (_isMuted == MuteState.unmuted)
-                ? widget.unMuteWidget
-                : widget.muteWidget));
+    return GestureDetector(
+        onTap: () => widget.controller.toggleMute(),
+        child: (_isMuted == MuteState.unmuted)
+            ? widget.unMuteWidget
+            : widget.muteWidget);
   }
 }
 
