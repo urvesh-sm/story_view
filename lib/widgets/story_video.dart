@@ -85,29 +85,27 @@ class StoryVideoState extends State<StoryVideo> {
         this.playerController =
             VideoPlayerController.file(widget.videoLoader.videoFile!);
 
-        playerController!.initialize().then((v) {
+        playerController?.initialize().then((v) {
           if (mounted) {
             setState(() {});
           }
-          widget.storyController!.play();
+          widget.storyController?.play();
         });
 
         if (widget.storyController != null) {
           _streamSubscription =
-              widget.storyController!.playbackNotifier.listen((playbackState) {
+              widget.storyController?.playbackNotifier.listen((playbackState) {
             if (playbackState == PlaybackState.pause) {
-              playerController!.pause();
+              playerController?.pause();
             } else {
-              playerController!.play();
+              playerController?.play();
             }
           });
-          widget.storyController!.muteNotifier.listen((muteState) {
+          widget.storyController?.muteNotifier.listen((muteState) {
             if (mounted) {
               setState(() {
                 _isMuted = muteState == MuteState.muted;
-                if (playerController != null) {
-                  playerController!.setVolume(_isMuted ? 0.0 : 1.0);
-                }
+                playerController?.setVolume(_isMuted ? 0.0 : 1.0);
               });
             }
           });
@@ -122,7 +120,7 @@ class StoryVideoState extends State<StoryVideo> {
 
   Widget getContentView() {
     if (widget.videoLoader.state == LoadState.success &&
-        playerController!.value.isInitialized) {
+        (playerController?.value.isInitialized ?? false)) {
       return Center(
         child: AspectRatio(
           aspectRatio: playerController!.value.aspectRatio,
