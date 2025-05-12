@@ -25,8 +25,8 @@ class VideoLoader {
       onComplete();
     }
 
-    final fileStream = DefaultCacheManager().getFileStream(this.url,headers: this.requestHeaders as Map<String, String>?);
-
+    final fileStream = DefaultCacheManager().getFileStream(this.url,
+        headers: this.requestHeaders as Map<String, String>?);
 
     fileStream.listen((fileResponse) {
       if (fileResponse is FileInfo) {
@@ -45,7 +45,8 @@ class StoryVideo extends StatefulWidget {
   final VideoLoader videoLoader;
   final Color? backgroundColor;
 
-  StoryVideo(this.videoLoader, {this.storyController, Key? key, this.backgroundColor})
+  StoryVideo(this.videoLoader,
+      {this.storyController, Key? key, this.backgroundColor})
       : super(key: key ?? UniqueKey());
 
   static StoryVideo url(String url,
@@ -85,7 +86,9 @@ class StoryVideoState extends State<StoryVideo> {
             VideoPlayerController.file(widget.videoLoader.videoFile!);
 
         playerController!.initialize().then((v) {
-          setState(() {});
+          if (mounted) {
+            setState(() {});
+          }
           widget.storyController!.play();
         });
 
@@ -98,15 +101,21 @@ class StoryVideoState extends State<StoryVideo> {
               playerController!.play();
             }
           });
-              widget.storyController!.muteNotifier.listen((muteState) {
-            setState(() {
-              _isMuted = muteState == MuteState.muted;
-              playerController!.setVolume(_isMuted ? 0.0 : 1.0);
-            });
+          widget.storyController!.muteNotifier.listen((muteState) {
+            if (mounted) {
+              setState(() {
+                _isMuted = muteState == MuteState.muted;
+                if (playerController != null) {
+                  playerController!.setVolume(_isMuted ? 0.0 : 1.0);
+                }
+              });
+            }
           });
         }
       } else {
-        setState(() {});
+        if (mounted) {
+          setState(() {});
+        }
       }
     });
   }
