@@ -762,12 +762,10 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                       : (details) {
                           widget.controller.play();
                           // finish up drag cycle
-                          if (!verticalDragInfo!.cancel &&
-                              widget.onVerticalSwipeComplete != null) {
-                            widget.onVerticalSwipeComplete!(
-                                verticalDragInfo!.direction);
+                          final dragInfo = verticalDragInfo;
+                          if (dragInfo != null && !dragInfo.cancel) {
+                            widget.onVerticalSwipeComplete?.call(dragInfo.direction);
                           }
-
                           verticalDragInfo = null;
                         },
                 ),
@@ -816,12 +814,10 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                       : (details) {
                           widget.controller.play();
                           // finish up drag cycle
-                          if (!verticalDragInfo!.cancel &&
-                              widget.onVerticalSwipeComplete != null) {
-                            widget.onVerticalSwipeComplete!(
-                                verticalDragInfo!.direction);
+                          final dragInfo = verticalDragInfo;
+                          if (dragInfo != null && !dragInfo.cancel) {
+                            widget.onVerticalSwipeComplete?.call(dragInfo.direction);
                           }
-
                           verticalDragInfo = null;
                         },
                 ),
